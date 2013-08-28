@@ -8,8 +8,8 @@ sites_I_care_about = ["http://developer.pagerduty.com/", "http://www.pagerduty.c
 objects_I_care_about = "a, img, script, link[type='text/css']"
 
 # We'll only report pages that have the following error codes
-# 999 isn't a real HTTP code, in this case it means we couldn't connect to the server for some reason
-statuses_I_care_about = [404, 410, 999]
+# 999 isn't a real HTTP code, in this case it means we couldn't connect to the server for some reason, it produces a lot of false positives
+statuses_I_care_about = [404, 410]
 
 # pretty self explanatory:
 timeout = 900
@@ -47,13 +47,13 @@ pages.each do |url, sources|
     pf = Hash[sources.group_by { |p| p }.map { |p, ps| [p, ps.length] }] # calculate # of times on a page
     #Report things once, and length is a close proxy for importance of a page
     sources = sources.uniq.sort_by(&:length) 
-    puts "\n#{response_code} from #{url}\n#{sources.count} pages that you care about link to #{url}" 
+    puts "\n#{response_code} from #{url}\n  #{sources.count} pages link to it:" 
     sources.first(list_this_many_sources).each do |page|
       times = ""
       times = "(x#{pf[page]})" if pf[page]>1
-      puts "#{page} #{times}"
+      puts "  #{page} #{times}"
     end
-    puts "and #{sources.count-list_this_many_sources} others..." if sources.count>list_this_many_sources
+    puts "  and #{sources.count-list_this_many_sources} others..." if sources.count>list_this_many_sources
   else 
     print "."
   end
